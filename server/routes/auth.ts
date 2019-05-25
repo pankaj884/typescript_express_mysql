@@ -32,6 +32,9 @@ const router = express.Router();
 
 router.route('/auth').get(auth, userCtrl.auth);
 
-userCtrl.test();
+setTimeout(function() {
+	userCtrl.checkTemp();
+}, 500);
+
 
 export default router;
