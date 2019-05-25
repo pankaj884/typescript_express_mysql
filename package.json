@@ -11,7 +11,6 @@
     "start": "node dist/server/app.js",
     "hmr": "concurrently \"mongod\" \"tsc -w -p server\" \"nodemon dist/server/app.js\"",
     "dev": "concurrently \"tsc -w -p server\" ",
-    "prod": "concurrently \"mongod\" \"tsc -p server && node dist/server/app.js\"",
     "test": "ng test",
     "lint": "ng lint",
     "lintbe": "tslint server/**/**.ts{,x}",

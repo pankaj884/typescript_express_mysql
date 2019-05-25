@@ -56,7 +56,6 @@ const tableSchema = {
 const router = express.Router();
 
 router.route('/users').get(auth, userCtrl.getAll);
-router.route('/users/count').get(auth, userCtrl.count);
 router.route('/users').post(auth, userCtrl.insert);
 router.route('/users/:id').get(auth, userCtrl.get);
 router.route('/users/:id').put(auth, userCtrl.update);
