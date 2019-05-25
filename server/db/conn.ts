@@ -1,10 +1,12 @@
 import * as ORM from 'sequelize';
 import { Sequelize } from 'sequelize';
+import * as dotenv from 'dotenv';
+dotenv.load({ path: '.env' });
 
 // Option 1: Passing parameters separately
-export const sequelize = new ORM('test_notification', 'root', 'root', {
-	host: '127.0.0.1',
-	port: '8889',
+export const sequelize = new ORM(process.env.db_name, process.env.db_user, process.env.db_pass, {
+	host: process.env.db_host,
+	port: process.env.db_port,
 	dialect: 'mysql',
 }, {
 		pool: {

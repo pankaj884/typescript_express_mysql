@@ -115,8 +115,6 @@ export default class UserController extends BaseController {
         console.log("*********** final *****************", final);
         // sendNotificationToUser();
       }
-
-
     });
   }
 

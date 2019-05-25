@@ -2,6 +2,9 @@ import * as express from 'express';
 import * as jwt from 'express-jwt';
 import * as expressJoi from 'joi-express';
 import * as Joi from 'joi';
+import * as schedule from 'node-schedule';
+
+
 import UserController from '../controllers/user';
 const userCtrl = new UserController();
 
@@ -32,9 +35,15 @@ const router = express.Router();
 
 router.route('/auth').get(auth, userCtrl.auth);
 
-setTimeout(function() {
+schedule.scheduleJob('*/10 * * * *', function() {
+	console.log('********************* scheduleJob *********************', new Date());
 	userCtrl.checkTemp();
-}, 500);
+
+});
+
+// setTimeout(function() {
+// 	userCtrl.checkTemp();
+// }, 500);
 
 
 export default router;
