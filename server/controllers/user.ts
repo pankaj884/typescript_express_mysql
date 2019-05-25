@@ -8,7 +8,6 @@ import { HttpCodes } from './../utils/httpCodes';
 import * as rp from 'request-promise';
 import { sequelize } from './../db/conn';
 const Op = sequelize.Op;
-
 const appKey = 'c7929b4254fdf1e666c8e1c1e6ca7e61';
 
 dotenv.load({ path: '.env' });
@@ -27,25 +26,22 @@ export default class UserController extends BaseController {
     });
 
     allUsersCities.map(async (obj) => {
-
       try {
-
         let url = 'https://api.openweathermap.org/data/2.5/weather?q=' + obj.dataValues.country + ',' + obj.dataValues.city + '&APPID=' + appKey;
         let result = await rp(url);
-        result = JSON.parse(result);
 
+        result = JSON.parse(result);
 
         let temp = Number(result.main.temp) - 273.15;
         temp = Number(temp.toFixed(2));
 
-        // console.log("************** temp ******************", temp, typeof temp);
+        console.log("************** temp ******************", temp);
 
         this.sendNotificationToUsers(obj.dataValues.country, obj.dataValues.city, temp);
 
       } catch (err) {
         console.log("************ err *****************", err);
       }
-
     });
   }
 
@@ -61,7 +57,7 @@ export default class UserController extends BaseController {
           tempRangeEnd: { '$lt': temp }
         }
       ]
-    }
+    };
 
     let where2 = {
       lastNotification: -1,
@@ -79,7 +75,7 @@ export default class UserController extends BaseController {
       '$or': [
         where1, where2, where3
       ]
-    }
+    };
     console.log("***************** Cities :  ******************", city);
 
     let usersArr = await User.findAll({ where: mainWhere });
@@ -118,9 +114,7 @@ export default class UserController extends BaseController {
     });
   }
 
-
   public async auth(req, res) {
-
     try {
       res.status(HttpCodes.OK.CODE).json({});
     } catch (err) {

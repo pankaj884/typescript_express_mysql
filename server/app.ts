@@ -18,7 +18,6 @@ app.use(compression({ filter: shouldCompress }));
 
 function shouldCompress(req, res) {
   if (req.headers['x-no-compression']) {
-    // don't compress responses with this request header
     return false
   }
   // fallback to standard filter function
@@ -33,14 +32,8 @@ bb.extend(app, {
 dotenv.load({ path: '.env' });
 
 app.set('port', (process.env.PORT || 3000));
-
 app.use('/', express.static(path.join(__dirname, '../public')));
-
 app.use(morgan('dev'));
-// mongoose.connect(process.env.MONGODB_URI, { useMongoClient: true });
-
-// const db = mongoose.connection;
-// (<any>mongoose).Promise = global.Promise;
 
 setRoutes(app);
 
@@ -52,12 +45,5 @@ app.listen(app.get('port'), () => {
   console.log('App platform listen on ' + app.get('port'));
 });
 
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', () => {
-//   console.log('Connected to MongoDB');
-
-
-
-// });
 
 export { app };

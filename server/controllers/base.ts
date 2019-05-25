@@ -6,133 +6,122 @@ abstract class BaseController {
   abstract model: any;
 
   // Get all
-  getAll = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      this.model.find(req.params, (err, docs) => {
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
+  getAll = async (req, res) => {
+
+    try {
+
+      if (req.payload && !req.payload.user._id) {
+        res.status(HttpCodes.UNAUTHORIZED.CODE).json({
+          message: 'UnauthorizedError: private'
+        });
+      } else {
+
+        const docs = await this.model.findAll(req.params);
         res.status(HttpCodes.OK.CODE).json(docs);
+
+      }
+    } catch (err) {
+      return res.status(HttpCodes.SERVER_ERROR.CODE).json({
+        message: HttpCodes.SERVER_ERROR.MESSAGE,
+        devMessage: err
       });
     }
+
   };
 
-  // Count all
-  count = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      this.model.count((err, count) => {
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
-        res.status(HttpCodes.OK.CODE).json(count);
-      });
-    }
-  };
 
   // Insert
-  insert = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      _.assignIn(req.body, req.params);
-      const obj = new this.model(req.body);
-      obj.save((err, item) => {
-        // 11000 is the code for duplicate key error
-        if (err && err.code === 11000) {
-          return res.status(HttpCodes.UNPROCESSABLE_ENTITY.CODE).json({
-            mongoError: 'UNIQUE',
-            devMessage: err
-          });
-        }
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
-        res.status(HttpCodes.OK.CODE).json(item);
+  insert = async (req, res) => {
+
+    try {
+
+      if (req.payload && !req.payload.user._id) {
+        res.status(HttpCodes.UNAUTHORIZED.CODE).json({
+          message: 'UnauthorizedError: private'
+        });
+      } else {
+        _.assignIn(req.body, req.params);
+
+        const docs = await this.model.create(req.body);
+        res.status(HttpCodes.OK.CODE).json(docs);
+
+      }
+    } catch (err) {
+      return res.status(HttpCodes.SERVER_ERROR.CODE).json({
+        message: HttpCodes.SERVER_ERROR.MESSAGE,
+        devMessage: err
       });
     }
   };
 
   // Get by id
-  get = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      this.model.findOne({ _id: req.params.id }, (err, obj) => {
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
-        res.status(HttpCodes.OK.CODE).json(obj);
+  get = async (req, res) => {
+
+    try {
+
+      if (req.payload && !req.payload.user._id) {
+        res.status(HttpCodes.UNAUTHORIZED.CODE).json({
+          message: 'UnauthorizedError: private'
+        });
+      } {
+
+        const docs = await this.model.find({ id: req.params.id });
+        res.status(HttpCodes.OK.CODE).json(docs);
+
+      }
+
+    } catch (err) {
+      return res.status(HttpCodes.SERVER_ERROR.CODE).json({
+        message: HttpCodes.SERVER_ERROR.MESSAGE,
+        devMessage: err
       });
     }
+
+
   };
 
   // Update by id
-  update = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      _.assignIn(req.body, req.params);
+  update = async (req, res) => {
 
-      this.model.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true }, (err, item) => {
-        // 11000 is the code for duplicate key error
-        if (err && err.code === 11000) {
-          return res.status(HttpCodes.UNPROCESSABLE_ENTITY.CODE).json({
-            mongoError: 'UNIQUE',
-            devMessage: err
-          });
-        }
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
-        res.status(HttpCodes.OK.CODE).json(item);
+
+    try {
+      if (req.payload && !req.payload.user._id) {
+        res.status(HttpCodes.UNAUTHORIZED.CODE).json({
+          message: 'UnauthorizedError: private'
+        });
+      } else {
+        await this.model.update(req.body, { where: { id: req.params.id } })
+        res.status(HttpCodes.OK.CODE).json({ message: 'success' });
+      }
+    } catch (err) {
+      return res.status(HttpCodes.SERVER_ERROR.CODE).json({
+        message: HttpCodes.SERVER_ERROR.MESSAGE,
+        devMessage: err
       });
     }
+
   };
 
   // Delete by id
-  delete = (req, res) => {
-    if (req.payload && !req.payload.user._id) {
-      res.status(HttpCodes.UNAUTHORIZED.CODE).json({
-        message: 'UnauthorizedError: private'
-      });
-    } else {
-      this.model.findOneAndRemove({ _id: req.params.id }, (err) => {
-        if (err) {
-          return res.status(HttpCodes.SERVER_ERROR.CODE).json({
-            message: HttpCodes.SERVER_ERROR.MESSAGE,
-            devMessage: err
-          });
-        }
-        res.status(HttpCodes.OK.CODE).json({});
+  delete = async (req, res) => {
+
+    try {
+
+      if (req.payload && !req.payload.user._id) {
+        res.status(HttpCodes.UNAUTHORIZED.CODE).json({
+          message: 'UnauthorizedError: private'
+        });
+      } else {
+        _.assignIn(req.body, req.params);
+
+        const docs = await this.model.destroy({ where: { id: req.params.id } });
+        res.status(HttpCodes.OK.CODE).json({ message: 'success' });
+
+      }
+    } catch (err) {
+      return res.status(HttpCodes.SERVER_ERROR.CODE).json({
+        message: HttpCodes.SERVER_ERROR.MESSAGE,
+        devMessage: err
       });
     }
   };
