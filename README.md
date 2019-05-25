@@ -3,7 +3,7 @@
 The backend is made from scratch. Whole stack in [TypeScript](https://www.typescriptlang.org).
 
 This project uses the [MEAN stack](https://en.wikipedia.org/wiki/MEAN_(software_bundle)):
-* [**M**ongoose.js](http://www.mongoosejs.com) ([MySQL](https://www.MySQL.com)): database
+* [**S**equelize.js](http://www.mongoosejs.com) ([MySQL](https://www.MySQL.com)): database
 * [**E**xpress.js](http://expressjs.com): backend framework
 * [**N**ode.js](https://nodejs.org): runtime environment
 
@@ -18,7 +18,7 @@ Other tools and technologies used:
 ## Run
 Make sure you create a `.env` file and copy what is on `.env.example`. It would be different for different environments.
 ### Development mode
-`npm run dev`: [concurrently](https://github.com/kimmobrunfeldt/concurrently) execute MySQL, Angular build, TypeScript compiler and Express server.
+`npm run dev`: [concurrently](https://github.com/kimmobrunfeldt/concurrently) execute MySQL, TypeScript compiler and Express server.
 
 `node dist/server/app.js`
 
