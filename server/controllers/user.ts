@@ -18,100 +18,117 @@ export default class UserController extends BaseController {
 
   checkTemp = async function() {
 
-    console.log("************** test function called ******************");
+    try {
 
-    let allUsersCities = await User.findAll({
-      attributes: ['country', 'city'],
-      group: ['country', 'city']
-    });
+      let allUsersCities = await User.findAll({
+        attributes: ['country', 'city'],
+        group: ['country', 'city']
+      });
 
-    allUsersCities.map(async (obj) => {
-      try {
-        let url = 'https://api.openweathermap.org/data/2.5/weather?q=' + obj.dataValues.country + ',' + obj.dataValues.city + '&APPID=' + appKey;
-        let result = await rp(url);
+      await Promise.all(
+        allUsersCities.map(async (obj) => {
+          let url = 'https://api.openweathermap.org/data/2.5/weather?q=' + obj.dataValues.country + ',' + obj.dataValues.city + '&APPID=' + appKey;
+          let result = await rp(url);
 
-        result = JSON.parse(result);
+          result = JSON.parse(result);
 
-        let temp = Number(result.main.temp) - 273.15;
-        temp = Number(temp.toFixed(2));
+          let temp = Number(result.main.temp) - 273.15;
+          temp = Number(temp.toFixed(2));
 
-        console.log("************** temp ******************", temp);
+          console.log("************** temp ******************", temp);
+          await this.sendNotificationToUsers(obj.dataValues.country, obj.dataValues.city, temp);
+        })
+      )
+      return true
 
-        this.sendNotificationToUsers(obj.dataValues.country, obj.dataValues.city, temp);
+    } catch (err) {
+      return err;
+    }
 
-      } catch (err) {
-        console.log("************ err *****************", err);
-      }
-    });
   }
 
   sendNotificationToUsers = async function(country, city, temp) {
 
-    let where1 = {
-      lastNotification: 0,
-      '$or': [
-        {
-          tempRangeStart: { '$gt': temp }
-        },
-        {
-          tempRangeEnd: { '$lt': temp }
-        }
-      ]
-    };
+    try {
 
-    let where2 = {
-      lastNotification: -1,
-      tempRangeStart: { '$lt': temp },
-    };
+      let where1 = {
+        lastNotification: 0,
+        '$or': [
+          {
+            tempRangeStart: { '$gt': temp }
+          },
+          {
+            tempRangeEnd: { '$lt': temp }
+          }
+        ]
+      };
 
-    let where3 = {
-      lastNotification: 1,
-      tempRangeEnd: { '$gt': temp }
-    };
+      let where2 = {
+        lastNotification: -1,
+        tempRangeStart: { '$lt': temp },
+      };
 
-    let mainWhere = {
-      country: country,
-      city: city,
-      '$or': [
-        where1, where2, where3
-      ]
-    };
-    console.log("***************** Cities :  ******************", city);
+      let where3 = {
+        lastNotification: 1,
+        tempRangeEnd: { '$gt': temp }
+      };
 
-    let usersArr = await User.findAll({ where: mainWhere });
+      let mainWhere = {
+        country: country,
+        city: city,
+        '$or': [
+          where1, where2, where3
+        ]
+      };
+      console.log("***************** Cities :  ******************", city, temp);
 
-    usersArr.map(async (obj) => {
+      let usersArr = await User.findAll({ where: mainWhere });
 
-      let last = obj.dataValues.lastNotification;
-      let newNotification = last;
+      await Promise.all(
+        usersArr.map(async (obj) => {
 
-      if (obj.dataValues.lastNotification == 0 && temp < obj.dataValues.tempRangeStart) {
-        newNotification = -1;
-      } else if (obj.dataValues.lastNotification == 0 && temp > obj.dataValues.tempRangeEnd) {
-        newNotification = 1;
-      } else if (obj.dataValues.lastNotification == -1 && temp > obj.dataValues.tempRangeEnd) {
-        newNotification = 1;
-      } else if (obj.dataValues.lastNotification == 1 && temp < obj.dataValues.tempRangeStart) {
-        newNotification = -1;
-      } else if (obj.dataValues.lastNotification != 0 && temp < obj.dataValues.tempRangeEnd && temp > obj.dataValues.tempRangeStart) {
-        newNotification = 0;
-      }
+          let last = obj.dataValues.lastNotification;
+          let newNotification = last;
 
-      if (newNotification !== last) {
+          if (obj.dataValues.lastNotification == 0 && temp < obj.dataValues.tempRangeStart) {
+            newNotification = -1;
+          } else if (obj.dataValues.lastNotification == 0 && temp > obj.dataValues.tempRangeEnd) {
+            newNotification = 1;
+          } else if (obj.dataValues.lastNotification == -1 && temp > obj.dataValues.tempRangeEnd) {
+            newNotification = 1;
+          } else if (obj.dataValues.lastNotification == 1 && temp < obj.dataValues.tempRangeStart) {
+            newNotification = -1;
+          } else if (obj.dataValues.lastNotification != 0 && temp < obj.dataValues.tempRangeEnd && temp > obj.dataValues.tempRangeStart) {
+            newNotification = 0;
+          }
 
-        let final = await User.update({
-          updatedAt: new Date(),
-          lastNotification: newNotification
-        }, {
-            where: {
-              id: obj.id
-            }
-          });
+          if (newNotification !== last) {
 
-        console.log("*********** final *****************", final);
-        // sendNotificationToUser();
-      }
-    });
+            console.log("**********");
+            console.log("****************");
+            console.log("**********************");
+            console.log("*********** Sending-Notification *****************", obj.dataValues.email, temp);
+            console.log("**********************");
+            console.log("****************");
+            console.log("**********");
+
+            let final = await User.update({
+              updatedAt: new Date(),
+              lastNotification: newNotification
+            }, {
+                where: {
+                  id: obj.dataValues.id
+                }
+              });
+
+            // sendNotificationToUser();
+          }
+        })
+      );
+      return true;
+    } catch (err) {
+      return err;
+    }
   }
 
   public async auth(req, res) {
