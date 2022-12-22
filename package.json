@@ -38,7 +38,7 @@
     "install": "^0.10.1",
     "joi": "^13.6.0",
     "joi-express": "^1.0.3",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.11",
     "mongoose": "^5.5.11",
     "mongoose-schema-extend": "^0.2.2",
